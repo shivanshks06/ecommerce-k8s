@@ -1,19 +1,9 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
 metadata:
-  name: auth-ingress
+  name: auth-stripprefix
   namespace: ecommerce
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: ecommerce-auth-stripprefix@kubernetescrd
 spec:
-  ingressClassName: traefik
-  rules:
-  - http:
-      paths:
-      - path: /auth
-        pathType: Prefix
-        backend:
-          service:
-            name: auth
-            port:
-              number: 4000
+  stripPrefix:
+    prefixes:
+      - /auth
