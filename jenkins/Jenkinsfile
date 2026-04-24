@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     DOCKER_USER = "shivanshks06"
+    VERSION = "v${BUILD_NUMBER}"
   }
 
   stages {
@@ -16,11 +17,17 @@ pipeline {
     stage('Build Images') {
       steps {
         sh '''
-        docker build -t $DOCKER_USER/ecommerse-k8s-auth-service:latest ./services/auth
-        docker build -t $DOCKER_USER/ecommerse-k8s-product-service:latest ./services/product
-        docker build -t $DOCKER_USER/ecommerse-k8s-order-service:latest ./services/order
-        docker build -t $DOCKER_USER/ecommerse-k8s-payment-service:latest ./services/payment
-        docker build -t $DOCKER_USER/ecommerse-k8s-frontend:latest ./services/frontend
+        docker build -t $DOCKER_USER/ecommerse-k8s-auth-service:$VERSION ./services/auth
+        docker build -t $DOCKER_USER/ecommerse-k8s-product-service:$VERSION ./services/product
+        docker build -t $DOCKER_USER/ecommerse-k8s-order-service:$VERSION ./services/order
+        docker build -t $DOCKER_USER/ecommerse-k8s-payment-service:$VERSION ./services/payment
+        docker build -t $DOCKER_USER/ecommerse-k8s-frontend:$VERSION ./services/frontend
+
+        docker tag $DOCKER_USER/ecommerse-k8s-auth-service:$VERSION $DOCKER_USER/ecommerse-k8s-auth-service:latest
+        docker tag $DOCKER_USER/ecommerse-k8s-product-service:$VERSION $DOCKER_USER/ecommerse-k8s-product-service:latest
+        docker tag $DOCKER_USER/ecommerse-k8s-order-service:$VERSION $DOCKER_USER/ecommerse-k8s-order-service:latest
+        docker tag $DOCKER_USER/ecommerse-k8s-payment-service:$VERSION $DOCKER_USER/ecommerse-k8s-payment-service:latest
+        docker tag $DOCKER_USER/ecommerse-k8s-frontend:$VERSION $DOCKER_USER/ecommerse-k8s-frontend:latest
         '''
       }
     }
@@ -35,6 +42,12 @@ pipeline {
           sh '''
           echo $PASS | docker login -u $USER --password-stdin
 
+          docker push $DOCKER_USER/ecommerse-k8s-auth-service:$VERSION
+          docker push $DOCKER_USER/ecommerse-k8s-product-service:$VERSION
+          docker push $DOCKER_USER/ecommerse-k8s-order-service:$VERSION
+          docker push $DOCKER_USER/ecommerse-k8s-payment-service:$VERSION
+          docker push $DOCKER_USER/ecommerse-k8s-frontend:$VERSION
+
           docker push $DOCKER_USER/ecommerse-k8s-auth-service:latest
           docker push $DOCKER_USER/ecommerse-k8s-product-service:latest
           docker push $DOCKER_USER/ecommerse-k8s-order-service:latest
@@ -45,20 +58,42 @@ pipeline {
       }
     }
 
-    stage('Deploy') {
+    stage('Deploy to Kubernetes') {
       steps {
         sh '''
         kubectl apply -f k8s/namespace.yml
+
         kubectl apply -f k8s/deployments/
         kubectl apply -f k8s/services/
         kubectl apply -f k8s/ingress/
+        kubectl apply -f k8s/hpa/
         '''
       }
     }
 
-    stage('Verify') {
+    stage('Force Rollout (Update Pods)') {
       steps {
-        sh 'kubectl get pods -n ecommerce'
+        sh '''
+        kubectl rollout restart deployment -n ecommerce
+        '''
+      }
+    }
+
+    stage('Verify Deployment') {
+      steps {
+        sh '''
+        echo "===== PODS ====="
+        kubectl get pods -n ecommerce
+
+        echo "===== SERVICES ====="
+        kubectl get svc -n ecommerce
+
+        echo "===== INGRESS ====="
+        kubectl get ingress -n ecommerce
+
+        echo "===== HPA ====="
+        kubectl get hpa -n ecommerce
+        '''
       }
     }
   }
