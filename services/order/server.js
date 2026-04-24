@@ -8,7 +8,7 @@ let orders = [];
 
 app.get("/health", (req, res) => res.send("OK"));
 
-app.post("/order", async (req, res) => {
+app.post("/", async (req, res) => {
   const { productId } = req.body;
 
   try {

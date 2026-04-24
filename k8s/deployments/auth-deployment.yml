@@ -4,7 +4,7 @@ metadata:
   name: auth-deployment
   namespace: ecommerce    
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: auth
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: auth
-        image: shivanshks06/ecommerse-k8s-auth-service:latest
+        image: shivanshks06/ecommerse-k8s-auth-service:v3
         ports:
         - containerPort: 4000
 

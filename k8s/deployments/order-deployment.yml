@@ -4,7 +4,7 @@ metadata:
   name: order-deployment
   namespace: ecommerce
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: order
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: order
-        image: shivanshks06/ecommerse-k8s-order-service:latest
+        image: shivanshks06/ecommerse-k8s-order-service:v3
         ports:
         - containerPort: 4002
 
@@ -31,4 +31,11 @@ spec:
             path: /health
             port: 4002
           initialDelaySeconds: 5
-          periodSeconds: 10
+          perikubectl top nodesodSeconds: 10
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"    
