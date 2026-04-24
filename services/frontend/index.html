@@ -1,28 +1,105 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>E-Commerce</title>
-</head>
-<body>
-  <h1>Cloud DevOps Project</h1>
-
-  <button onclick="getProducts()">Load Products</button>
-  <ul id="products"></ul>
-
-  <script>
-    async function getProducts() {
-      const res = await fetch("http://16.171.71.173:4001/products");
-      const data = await res.json();
-
-      const list = document.getElementById("products");
-      list.innerHTML = "";
-
-      data.forEach(p => {
-        const li = document.createElement("li");
-        li.innerText = p.name + " - ₹" + p.price;
-        list.appendChild(li);
-      });
+  <title>E-Commerce Dashboard</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f6f8;
+      text-align: center;
     }
-  </script>
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 20px auto;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚀 Cloud E-Commerce</h1>
+
+<div class="card">
+  <h3>Register</h3>
+  <input id="regUser" placeholder="Username"><br><br>
+  <input id="regPass" placeholder="Password"><br>
+  <button onclick="register()">Register</button>
+</div>
+
+<div class="card">
+  <h3>Login</h3>
+  <input id="loginUser" placeholder="Username"><br><br>
+  <input id="loginPass" placeholder="Password"><br>
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="card">
+  <h3>Products</h3>
+  <button onclick="getProducts()">Load Products</button>
+  <div id="products"></div>
+</div>
+
+<div class="card">
+  <h3>Order</h3>
+  <input id="productId" placeholder="Product ID"><br>
+  <button onclick="placeOrder()">Order</button>
+</div>
+
+<script>
+const BASE_URL = "";
+
+async function register() {
+  const res = await fetch(BASE_URL + "/auth/register", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: regUser.value,
+      password: regPass.value
+    })
+  });
+  alert(await res.text());
+}
+
+async function login() {
+  const res = await fetch(BASE_URL + "/auth/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: loginUser.value,
+      password: loginPass.value
+    })
+  });
+  alert(await res.text());
+}
+
+async function getProducts() {
+  const res = await fetch(BASE_URL + "/products");
+  const data = await res.json();
+  products.innerHTML = JSON.stringify(data);
+}
+
+async function placeOrder() {
+  const res = await fetch(BASE_URL + "/order", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ productId: Number(productId.value) })
+  });
+  alert(await res.text());
+}
+</script>
+
 </body>
 </html>
