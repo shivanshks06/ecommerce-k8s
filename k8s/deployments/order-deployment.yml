@@ -31,7 +31,7 @@ spec:
             path: /health
             port: 4002
           initialDelaySeconds: 5
-          perikubectl top nodesodSeconds: 10
+          periodSeconds: 10
         resources:
           requests:
             cpu: "100m"
