@@ -1,43 +1,64 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        DOCKER_IMAGE = "shivanshks06/ecommerse-k8s-order-service"
+  environment {
+    DOCKER_USER = "shivanshks06"
+  }
+
+  stages {
+
+    stage('Clone') {
+      steps {
+        git 'https://github.com/shivanshks06/ecommerce-k8s.git'
+      }
     }
 
-    stages {
-
-        stage('Clone') {
-            steps {
-                git https://github.com/shivanshks06/ecommerce-k8s.git
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t $DOCKER_IMAGE:latest ./services/order'
-            }
-        }
-
-        stage('Push Image') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhubcred',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
-                )]) {
-                    sh '''
-                    echo $PASSWORD | docker login -u $USERNAME --password-stdin
-                    docker push $DOCKER_IMAGE:latest
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f k8s/deployments/order-deployment.yaml'
-            }
-        }
+    stage('Build Images') {
+      steps {
+        sh '''
+        docker build -t $DOCKER_USER/ecommerse-k8s-auth-service:latest ./services/auth
+        docker build -t $DOCKER_USER/ecommerse-k8s-product-service:latest ./services/product
+        docker build -t $DOCKER_USER/ecommerse-k8s-order-service:latest ./services/order
+        docker build -t $DOCKER_USER/ecommerse-k8s-payment-service:latest ./services/payment
+        docker build -t $DOCKER_USER/ecommerse-k8s-frontend:latest ./services/frontend
+        '''
+      }
     }
+
+    stage('Push Images') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhubcred',
+          usernameVariable: 'USER',
+          passwordVariable: 'PASS'
+        )]) {
+          sh '''
+          echo $PASS | docker login -u $USER --password-stdin
+
+          docker push $DOCKER_USER/ecommerse-k8s-auth-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-product-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-order-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-payment-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-frontend:latest
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
+      steps {
+        sh '''
+        kubectl apply -f k8s/deployments/
+        kubectl apply -f k8s/services/
+        kubectl apply -f k8s/ingress/
+        '''
+      }
+    }
+
+    stage('Verify') {
+      steps {
+        sh 'kubectl get pods -n ecommerce'
+      }
+    }
+  }
 }
