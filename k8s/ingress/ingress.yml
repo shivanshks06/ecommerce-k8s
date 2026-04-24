@@ -3,7 +3,8 @@ kind: Ingress
 metadata:
   name: ecommerce-ingress
   namespace: ecommerce
-  
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: ecommerce-stripprefix@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
