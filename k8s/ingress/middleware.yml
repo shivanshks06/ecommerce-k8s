@@ -1,0 +1,29 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-auth
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /auth
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-order
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /order
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-payment
+  namespace: ecommerce
+spec:
+  stripPrefix:
+    prefixes:
+      - /payment
