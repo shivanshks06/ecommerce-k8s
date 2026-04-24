@@ -49,7 +49,7 @@ pipeline {
       }
     }
 
-    stage('Deploy to Kubernetes') {
+    stage('Deploy') {
       steps {
         dir('ecommerce-k8s') {
           sh '''
