@@ -3,17 +3,13 @@ kind: Ingress
 metadata:
   name: ecommerce-ingress
   namespace: ecommerce
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: |
-      ecommerce-stripprefix-auth@kubernetescrd,
-      ecommerce-stripprefix-order@kubernetescrd,
-      ecommerce-stripprefix-payment@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
   - http:
       paths:
 
+      # Frontend
       - path: /
         pathType: Prefix
         backend:
@@ -22,6 +18,7 @@ spec:
             port:
               number: 80
 
+      # Product (works directly)
       - path: /products
         pathType: Prefix
         backend:
@@ -30,14 +27,7 @@ spec:
             port:
               number: 4001
 
-      - path: /auth
-        pathType: Prefix
-        backend:
-          service:
-            name: auth
-            port:
-              number: 4000
-
+      # Order (no middleware yet)
       - path: /order
         pathType: Prefix
         backend:
@@ -46,6 +36,7 @@ spec:
             port:
               number: 4002
 
+      # Payment
       - path: /payment
         pathType: Prefix
         backend:
