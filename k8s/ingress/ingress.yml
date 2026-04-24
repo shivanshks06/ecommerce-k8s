@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecommerce-ingress
+  namespace: ecommerce
+  
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
+
+      - path: /products
+        pathType: Prefix
+        backend:
+          service:
+            name: product
+            port:
+              number: 4001
+
+      - path: /order
+        pathType: Prefix
+        backend:
+          service:
+            name: order
+            port:
+              number: 4002
+
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth
+            port:
+              number: 4000
+
+      - path: /payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment
+            port:
+              number: 4003
