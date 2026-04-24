@@ -12,27 +12,16 @@ pipeline {
         git branch: 'main', url: 'https://github.com/shivanshks06/ecommerce-k8s.git'
       }
     }
-    stage('Debug') {
-  steps {
-    sh '''
-    pwd
-    ls -la
-    ls -la *
-    '''
-  }
-}
 
     stage('Build Images') {
       steps {
-        dir('ecommerce-k8s') {
-          sh '''
-          docker build -t $DOCKER_USER/ecommerse-k8s-auth-service:latest ./services/auth
-          docker build -t $DOCKER_USER/ecommerse-k8s-product-service:latest ./services/product
-          docker build -t $DOCKER_USER/ecommerse-k8s-order-service:latest ./services/order
-          docker build -t $DOCKER_USER/ecommerse-k8s-payment-service:latest ./services/payment
-          docker build -t $DOCKER_USER/ecommerse-k8s-frontend:latest ./services/frontend
-          '''
-        }
+        sh '''
+        docker build -t $DOCKER_USER/ecommerse-k8s-auth-service:latest ./services/auth
+        docker build -t $DOCKER_USER/ecommerse-k8s-product-service:latest ./services/product
+        docker build -t $DOCKER_USER/ecommerse-k8s-order-service:latest ./services/order
+        docker build -t $DOCKER_USER/ecommerse-k8s-payment-service:latest ./services/payment
+        docker build -t $DOCKER_USER/ecommerse-k8s-frontend:latest ./services/frontend
+        '''
       }
     }
 
@@ -43,30 +32,26 @@ pipeline {
           usernameVariable: 'USER',
           passwordVariable: 'PASS'
         )]) {
-          dir('ecommerce-k8s') {
-            sh '''
-            echo $PASS | docker login -u $USER --password-stdin
+          sh '''
+          echo $PASS | docker login -u $USER --password-stdin
 
-            docker push $DOCKER_USER/ecommerse-k8s-auth-service:latest
-            docker push $DOCKER_USER/ecommerse-k8s-product-service:latest
-            docker push $DOCKER_USER/ecommerse-k8s-order-service:latest
-            docker push $DOCKER_USER/ecommerse-k8s-payment-service:latest
-            docker push $DOCKER_USER/ecommerse-k8s-frontend:latest
-            '''
-          }
+          docker push $DOCKER_USER/ecommerse-k8s-auth-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-product-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-order-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-payment-service:latest
+          docker push $DOCKER_USER/ecommerse-k8s-frontend:latest
+          '''
         }
       }
     }
 
     stage('Deploy') {
       steps {
-        dir('ecommerce-k8s') {
-          sh '''
-          kubectl apply -f k8s/deployments/
-          kubectl apply -f k8s/services/
-          kubectl apply -f k8s/ingress/
-          '''
-        }
+        sh '''
+        kubectl apply -f k8s/deployments/
+        kubectl apply -f k8s/services/
+        kubectl apply -f k8s/ingress/
+        '''
       }
     }
 
