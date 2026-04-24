@@ -12,6 +12,15 @@ pipeline {
         git branch: 'main', url: 'https://github.com/shivanshks06/ecommerce-k8s.git'
       }
     }
+    stage('Debug') {
+  steps {
+    sh '''
+    pwd
+    ls -la
+    ls -la *
+    '''
+  }
+}
 
     stage('Build Images') {
       steps {
