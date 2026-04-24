@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>E-Commerce</title>
+</head>
+<body>
+  <h1>Cloud DevOps Project</h1>
+
+  <button onclick="getProducts()">Load Products</button>
+  <ul id="products"></ul>
+
+  <script>
+    async function getProducts() {
+      const res = await fetch("http://16.171.71.173:4001/products");
+      const data = await res.json();
+
+      const list = document.getElementById("products");
+      list.innerHTML = "";
+
+      data.forEach(p => {
+        const li = document.createElement("li");
+        li.innerText = p.name + " - ₹" + p.price;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
